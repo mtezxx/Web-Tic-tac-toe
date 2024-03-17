@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div class="game-title">
+        <h1>Tic-Tac-Toe</h1>
+    </div>
+  <style>
+
+    body {
+        background-color: rgb(149, 167, 167);
+    }
+
+    .game-title h1 {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    color: #000811; 
+    font-size: 48px; 
+    margin: 20px 0; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
+}
+
+    .table {
+        border-collapse: collapse;
+        margin: 20px auto;
+    }
+
+    .row {
+        border-bottom: 2px solid #000;
+    }
+
+    .cell {
+        width: 200px;
+        height: 200px;
+        text-align: center;
+        vertical-align: middle;
+        font-weight: bold;
+        border: 2px solid #000;
+        cursor: pointer;
+        font-size: 0;
+    }
+
+    .cell:hover {
+        background-color: #dc7373;
+    }
+
+    .board {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 50px;
+        padding: 20px;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .board:hover {
+        transform: translateY(-5px);
+    }
+
+    .board * {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .board *:hover {
+        transform: scale(1.05);
+    }
+
+    .X {
+        background-image: url('https://images.emojiterra.com/google/noto-emoji/unicode-15/color/512px/274c.png');
+        background-size: cover;
+    }
+
+    .O {
+        background-image: url('https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/000/636/269/datas/original.png');
+        background-size: cover;
+    }
+
+    #restart {
+        display: block; 
+        width: 150px; 
+        padding: 10px 20px; 
+        margin: 20px auto; 
+        font-size: 1em; 
+        font-weight: bold; 
+        color: #fff; 
+        background-color: #f44336; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
+    }
+
+    #restart:hover {
+        background-color: #d32f2f; 
+        color: #ffeeee; 
+    }
+
+    #restart:active {
+        transform: translateY(2px); 
+    }
+
+    #playerInfo {
+        width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #playerInfo label {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        color: #333;
+    }
+
+    #playerInfo input[type="text"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+    }
+
+    #playerInfo input[type="text"]:last-of-type {
+        margin-bottom: 10px;
+    }
+
+    #playerInfo input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    #playerInfo input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+    <form id="playerInfo">
+        <label for="fname">Player 1:</label>
+        <input type="text" id="player1" name="player1"><br><br>
+        <label for="lname">Player 2:</label>
+        <input type="text" id="player2" name="player2"><br><br>
+        <input type="submit" value="Start Game">
+    </form>
+    <div class="board" id="tic-tac-toe-board">
+        <h3 id="winner" style="display: none;"></h3>
+        <table class="table">
+            <tr class="row">
+                <td class="cell" id="00"></td>
+                <td class="cell" id="01"></td>
+                <td class="cell" id="02"></td>
+            </tr>
+            <tr class="row">
+                <td class="cell" id="10"></td>
+                <td class="cell" id="11"></td>
+                <td class="cell" id="12"></td>
+            </tr>
+            <tr class="row">
+                <td class="cell" id="20"></td>
+                <td class="cell" id="21"></td>
+                <td class="cell" id="22"></td>
+            </tr>
+        </table>
+        <button id="restart">Restart</button>
+    </div>
+
+    <script>
+       let game= {
+        board: [
+            ['', '',''],
+            ['','','',],
+            ['','','',],
+        ],
+        playerX : null,
+        playerO : null,
+        currentPlayer: 'X',
+        winnerElement: null,
+        cells : null,
+        gameInProgress: true,
+        restartButton: null
+       }
+
+       document.getElementById("playerInfo").addEventListener("submit",function(event){
+        event.preventDefault();
+        const player1const = document.getElementById("player1").value;
+        const player2const = document.getElementById("player2").value;
+
+        if(player1const.trim() === '' || player2const.trim()=== ''){
+            alert("Enter players names!")
+        }else{
+            initializeGame(player1const,player2const);
+        }
+       });
+
+        function initializeGame(player1, player2) {
+        document.getElementById("playerInfo").style.display = "none";
+        document.getElementById("tic-tac-toe-board").style.display = "block";
+        game.playerX = player1;
+        game.playerO = player2;
+
+        game.winnerElement = document.getElementById('winner');
+        game.cells = document.querySelectorAll('.cell'); // Corrected assignment here
+        game.restartButton = document.getElementById('restart');
+        start();
+}
+
+
+function start() {
+    game.cells.forEach((cell) => {
+        cell.addEventListener('click', (event) => {
+            const row = parseInt(cell.id[0]);
+            const col = parseInt(cell.id[1]);
+
+            // Check if the move is valid and the game is in progress
+            if (isMoveValid(row, col, game.board) && game.gameInProgress) {
+                cell.textContent = game.currentPlayer;
+                cell.classList.add(game.currentPlayer); // Add X or O class for styling
+                game.board[row][col] = game.currentPlayer; // Update the board state
+                
+                // Check if the game is over after the move
+                let gameOverResult = isGameOver(game.board);
+                if (gameOverResult !== false) {
+                    game.gameInProgress = false;
+                    if (gameOverResult === 'X') {
+                        game.winnerElement.textContent = "Congratulations, " + game.playerX + ", X wins!";
+                    } else if (gameOverResult === 'O') {
+                        game.winnerElement.textContent = "Congratulations, " + game.playerO + ", O wins!";
+                    } else {
+                        game.winnerElement.textContent = "It is a draw!";
+                    }
+                    game.winnerElement.style.display = "block";
+                } else {
+                    // Switch player if the game is not over
+                    game.currentPlayer = game.currentPlayer === 'X' ? 'O' : 'X';
+                }
+            }
+        });
+    });
+
+    game.restartButton.addEventListener('click', () => {
+        resetGame();
+    });
+}
+
+    function makeMove(row, col, currentPlayer, board) {
+    // Update the board at the specified row and column with the current player's symbol
+    board[row][col] = currentPlayer;
+    return board;
+}
+        function resetGame(){
+        game.board = [
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ];
+
+            
+            game.currentPlayer = 'X';
+            game.gameInProgress=true;
+            
+            game.cells.forEach((cell) => {
+                cell.textContent = '';
+                cell.className = 'cell';
+            });
+
+            
+            game.winnerElement.style.display = "none";
+    }
+
+        function isMoveValid(row, col, board) {
+          return board[row][col] === '';
+     }
+
+     function isGameOver(board){
+    const winner = getWinner(board);
+    if(winner === 'X'){
+        return 'X';
+    }else if(winner === 'O'){
+        return 'O';
+    }else if(isBoardFull(board)){
+        return 'draw';
+    }
+
+    return false;
+}
+
+     function isBoardFull(board){
+        for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    if (board[row][col] === '') {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+     
+        function getWinner(board) {
+            //row
+            for (let row = 0; row < 3; row++) {
+                if (
+                    board[row][0] !== '' &&
+                    board[row][0] === board[row][1] &&
+                    board[row][1] === board[row][2]
+                ) {
+                    return board[row][0];
+                }
+            }
+            //column
+            for (let col = 0; col < 3; col++) {
+                if (
+                    board[0][col] !== '' &&
+                    board[0][col] === board[1][col] &&
+                    board[1][col] === board[2][col]
+                ) {
+                    return board[0][col];
+                }
+            }
+            //diagonal
+            if (
+                board[0][0] !== '' &&
+                board[0][0] === board[1][1] &&
+                board[1][1] === board[2][2]
+            ) {
+                return board[0][0];
+            }
+            if (
+                board[0][2] !== '' &&
+                board[0][2] === board[1][1] &&
+                board[1][1] === board[2][0]
+            ) {
+                return board[0][2];
+            }
+            return null;
+        }
+    </script>
+</body>
+</html>

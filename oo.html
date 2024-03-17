@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Tic-Tac-Toe</title>
-  <style>
-    body {
-        background-color: rgb(228, 228, 228);
+    <meta charset="UTF-8">
+    <title>Tic-Tac-Toe</title>
+    <style>
+         body {
+        background-color: rgb(149, 167, 167);
     }
+
+    .game-title h1 {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    color: #000811; 
+    font-size: 48px; 
+    margin: 20px 0; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
+}
 
     .table {
         border-collapse: collapse;
@@ -36,51 +46,117 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        margin-top: 50px; 
+        margin-top: 50px;
+        padding: 20px;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
     }
 
-    /*X*/
+    .board:hover {
+        transform: translateY(-5px);
+    }
+
+    .board * {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .board *:hover {
+        transform: scale(1.05);
+    }
+
     .X {
         background-image: url('https://images.emojiterra.com/google/noto-emoji/unicode-15/color/512px/274c.png');
         background-size: cover;
     }
 
-    /*O*/
     .O {
         background-image: url('https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/000/636/269/datas/original.png');
         background-size: cover;
     }
 
     #restart {
-    display: block; 
-    width: 150px; 
-    padding: 10px 20px; 
-    margin: 20px auto; 
-    font-size: 1em; 
-    font-weight: bold; 
-    color: #fff; 
-    background-color: #f44336; 
-    border: none; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    transition: background-color 0.3s ease; 
-}
+        display: block; 
+        width: 150px; 
+        padding: 10px 20px; 
+        margin: 20px auto; 
+        font-size: 1em; 
+        font-weight: bold; 
+        color: #fff; 
+        background-color: #f44336; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
+    }
 
-#restart:hover {
-    background-color: #d32f2f; 
-    color: #ffeeee; 
-}
+    #restart:hover {
+        background-color: #d32f2f; 
+        color: #ffeeee; 
+    }
 
-#restart:active {
-    transform: translateY(2px); 
-}
+    #restart:active {
+        transform: translateY(2px); 
+    }
 
+    #playerInfo {
+        width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-  </style>
+    #playerInfo label {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        color: #333;
+    }
+
+    #playerInfo input[type="text"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+    }
+
+    #playerInfo input[type="text"]:last-of-type {
+        margin-bottom: 10px;
+    }
+
+    #playerInfo input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    #playerInfo input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Tic-Tac-Toe</h1>
-    <div class="board" id="tic-tac-toe-board">
+    <div class="game-title">
+        <h1>Tic-Tac-Toe</h1>
+    </div>
+    <form id="playerInfo">
+        <label for="player1">Player 1:</label>
+        <input type="text" id="player1" name="player1"><br><br>
+        <label for="player2">Player 2:</label>
+        <input type="text" id="player2" name="player2"><br><br>
+        <input type="submit" value="Start Game">
+    </form>
+    <div class="board" id="tic-tac-toe-board" style="display:none;">
         <h3 id="winner" style="display: none;"></h3>
         <table class="table">
             <tr class="row">
@@ -103,7 +179,151 @@
     </div>
 
     <script>
-       
+        document.getElementById("playerInfo").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const player1Value = document.getElementById("player1").value;
+            const player2Value = document.getElementById("player2").value;
+            if (player1Value.trim() === '' || player2Value.trim() === '') {
+                alert("Please enter both player names.");
+            } else {
+                new Game(player1Value, player2Value);
+                document.getElementById("playerInfo").style.display = "none";
+                document.getElementById("tic-tac-toe-board").style.display = "block";
+            }
+        });
+
+        class Game {
+            constructor(p1, p2) {
+                this.p1 = p1;
+                this.p2 = p2;
+                this.currentPlayer = 'X';
+                this.gameInProgress = true;
+                this.board = new Board();
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                this.winnerElement = document.getElementById('winner');
+                this.restartButton = document.getElementById('restart');
+                this.cells = document.querySelectorAll('.cell');
+                this.addClickHandlers();
+                this.addRestartHandler();
+            }
+
+            addClickHandlers() {
+                this.cells.forEach(cell => {
+                    cell.onclick = () => this.handleCellClick(cell);
+                });
+            }
+
+            handleCellClick(cell) {
+                const [row, col] = cell.id.split('');
+                if (this.board.isMoveValid(row, col) && this.gameInProgress) {
+                    this.board.makeMove(row, col, this.currentPlayer);
+                    cell.classList.add(this.currentPlayer); // Add class for visual
+                    const gameStatus = this.board.isGameOver();
+                    if (gameStatus) {
+                        this.endGame(gameStatus);
+                    } else {
+                        this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                    }
+                }
+            }
+
+            addRestartHandler() {
+                this.restartButton.onclick = () => this.resetGame();
+            }
+
+            endGame(status) {
+                this.gameInProgress = false;
+                let message = status === 'draw' ? "It's a draw!" : `Congratulations, ${status === 'X' ? this.p1 : this.p2}, you win!`;
+                this.winnerElement.textContent = message;
+                this.winnerElement.style.display = 'block';
+            }
+
+            resetGame() {
+                this.board.reset();
+                this.cells.forEach(cell => {
+                    cell.classList.remove('X', 'O');
+                    cell.textContent = '';
+                });
+                this.winnerElement.style.display = "none";
+                this.currentPlayer = 'X';
+                this.gameInProgress = true;
+            }
+        }
+
+        class Board {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.grid = [
+                    ['', '', ''],
+                    ['', '', ''],
+                    ['', '', '']
+                ];
+            }
+
+            isMoveValid(row, col) {
+                return !this.grid[row][col];
+            }
+
+            makeMove(row, col, player) {
+                this.grid[row][col] = player;
+            }
+
+            isGameOver() {
+                const winner = this.getWinner();
+                if (winner) {
+                    return winner;
+                } else if (this.isBoardFull()) {
+                    return 'draw';
+                }
+                return false;
+            }
+
+            isBoardFull() {
+                return this.grid.every(row => row.every(cell => cell !== ''));
+            }
+
+            getWinner() {
+                for (let row = 0; row < 3; row++) {
+                    if (
+                        this.grid[row][0] !== '' &&
+                        this.grid[row][0] === this.grid[row][1] &&
+                        this.grid[row][1] === this.grid[row][2]
+                    ) {
+                        return this.grid[row][0];
+                    }
+                }
+                for (let col = 0; col < 3; col++) {
+                    if (
+                        this.grid[0][col] !== '' &&
+                        this.grid[0][col] === this.grid[1][col] &&
+                        this.grid[1][col] === this.grid[2][col]
+                    ) {
+                        return this.grid[0][col];
+                    }
+                }
+                if (
+                    this.grid[0][0] !== '' &&
+                    this.grid[0][0] === this.grid[1][1] &&
+                    this.grid[1][1] === this.grid[2][2]
+                ) {
+                    return this.grid[0][0];
+                }
+                if (
+                    this.grid[0][2] !== '' &&
+                    this.grid[0][2] === this.grid[1][1] &&
+                    this.grid[1][1] === this.grid[2][0]
+                ) {
+                    return this.grid[0][2];
+                }
+                return null;
+            }
+        }
     </script>
 </body>
 </html>
