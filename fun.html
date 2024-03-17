@@ -212,7 +212,7 @@
         game.playerO = player2;
 
         game.winnerElement = document.getElementById('winner');
-        game.cells = document.querySelectorAll('.cell'); // Corrected assignment here
+        game.cells = document.querySelectorAll('.cell'); 
         game.restartButton = document.getElementById('restart');
         start();
 }
@@ -224,13 +224,11 @@ function start() {
             const row = parseInt(cell.id[0]);
             const col = parseInt(cell.id[1]);
 
-            // Check if the move is valid and the game is in progress
             if (isMoveValid(row, col, game.board) && game.gameInProgress) {
                 cell.textContent = game.currentPlayer;
-                cell.classList.add(game.currentPlayer); // Add X or O class for styling
-                game.board[row][col] = game.currentPlayer; // Update the board state
+                cell.classList.add(game.currentPlayer); 
+                game.board[row][col] = game.currentPlayer; 
                 
-                // Check if the game is over after the move
                 let gameOverResult = isGameOver(game.board);
                 if (gameOverResult !== false) {
                     game.gameInProgress = false;
@@ -243,7 +241,6 @@ function start() {
                     }
                     game.winnerElement.style.display = "block";
                 } else {
-                    // Switch player if the game is not over
                     game.currentPlayer = game.currentPlayer === 'X' ? 'O' : 'X';
                 }
             }
@@ -256,7 +253,6 @@ function start() {
 }
 
     function makeMove(row, col, currentPlayer, board) {
-    // Update the board at the specified row and column with the current player's symbol
     board[row][col] = currentPlayer;
     return board;
 }
@@ -309,7 +305,7 @@ function start() {
         }
      
         function getWinner(board) {
-            //row
+            
             for (let row = 0; row < 3; row++) {
                 if (
                     board[row][0] !== '' &&
@@ -319,7 +315,7 @@ function start() {
                     return board[row][0];
                 }
             }
-            //column
+            
             for (let col = 0; col < 3; col++) {
                 if (
                     board[0][col] !== '' &&
@@ -329,7 +325,7 @@ function start() {
                     return board[0][col];
                 }
             }
-            //diagonal
+            
             if (
                 board[0][0] !== '' &&
                 board[0][0] === board[1][1] &&

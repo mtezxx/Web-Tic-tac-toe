@@ -220,7 +220,7 @@
                 const [row, col] = cell.id.split('');
                 if (this.board.isMoveValid(row, col) && this.gameInProgress) {
                     this.board.makeMove(row, col, this.currentPlayer);
-                    cell.classList.add(this.currentPlayer); // Add class for visual
+                    cell.classList.add(this.currentPlayer); 
                     const gameStatus = this.board.isGameOver();
                     if (gameStatus) {
                         this.endGame(gameStatus);
